@@ -90,31 +90,63 @@ def load_models_and_data():
     df_indo = None
     df_projects = None
     
-    if os.path.exists(CLASSIFIER_PATH) and os.path.exists(REGRESSOR_PATH):
-        classifier = joblib.load(CLASSIFIER_PATH)
-        regressor = joblib.load(REGRESSOR_PATH)
-        
-    if os.path.exists(METADATA_PATH):
-        with open(METADATA_PATH, "r") as f:
-            metadata = json.load(f)
+    # Load each artifact defensively: a missing or incompatible optional artifact
+    # should not prevent the rest of the dashboard from opening.
+    try:
+        if os.path.exists(CLASSIFIER_PATH):
+            classifier = joblib.load(CLASSIFIER_PATH)
+        if os.path.exists(REGRESSOR_PATH):
+            regressor = joblib.load(REGRESSOR_PATH)
+    except Exception as exc:
+        st.warning(f"Could not load the main ML models: {exc}")
+        classifier, regressor = None, None
+
+    try:
+        if os.path.exists(METADATA_PATH):
+            with open(METADATA_PATH, "r", encoding="utf-8") as f:
+                metadata = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        st.warning(f"Could not read main model metadata: {exc}")
+        metadata = None
             
-    if os.path.exists(DATA_PATH):
-        df_data = pd.read_csv(DATA_PATH)
+    try:
+        if os.path.exists(DATA_PATH):
+            df_data = pd.read_csv(DATA_PATH)
+    except Exception as exc:
+        st.warning(f"Could not read sensor dataset ({DATA_PATH}): {exc}")
+        df_data = None
         
     # Load INDOFLOODS Real Data Artifacts
-    if os.path.exists(INDO_CLF_PATH) and os.path.exists(INDO_REG_PATH):
-        indo_clf = joblib.load(INDO_CLF_PATH)
-        indo_reg = joblib.load(INDO_REG_PATH)
-        
-    if os.path.exists(INDO_META_PATH):
-        with open(INDO_META_PATH, "r") as f:
-            indo_meta = json.load(f)
+    try:
+        if os.path.exists(INDO_CLF_PATH):
+            indo_clf = joblib.load(INDO_CLF_PATH)
+        if os.path.exists(INDO_REG_PATH):
+            indo_reg = joblib.load(INDO_REG_PATH)
+    except Exception as exc:
+        st.warning(f"Could not load INDOFLOODS models: {exc}")
+        indo_clf, indo_reg = None, None
+
+    try:
+        if os.path.exists(INDO_META_PATH):
+            with open(INDO_META_PATH, "r", encoding="utf-8") as f:
+                indo_meta = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        st.warning(f"Could not read INDOFLOODS metadata: {exc}")
+        indo_meta = None
             
-    if os.path.exists(INDO_DATA_PATH):
-        df_indo = pd.read_csv(INDO_DATA_PATH)
-        
-    if os.path.exists(PROJECTS_DATA_PATH):
-        df_projects = pd.read_csv(PROJECTS_DATA_PATH)
+    try:
+        if os.path.exists(INDO_DATA_PATH):
+            df_indo = pd.read_csv(INDO_DATA_PATH)
+    except Exception as exc:
+        st.warning(f"Could not read INDOFLOODS dataset: {exc}")
+        df_indo = None
+
+    try:
+        if os.path.exists(PROJECTS_DATA_PATH):
+            df_projects = pd.read_csv(PROJECTS_DATA_PATH)
+    except Exception as exc:
+        st.warning(f"Could not read mitigation projects dataset: {exc}")
+        df_projects = None
         
     return classifier, regressor, metadata, df_data, indo_clf, indo_reg, indo_meta, df_indo, df_projects
 
@@ -128,7 +160,7 @@ with st.sidebar:
     st.divider()
     
     st.subheader("System Status")
-    if classifier and regressor:
+    if classifier is not None and regressor is not None:
         st.success("🟢 AI Models Loaded & Operational")
     else:
         st.error("🔴 Models not found. Run training script first.")
@@ -197,7 +229,7 @@ with tab_indo:
             map_data = df_indo if sel_basin == "All Basins" else df_indo[df_indo["Basin"] == sel_basin]
             station_map = map_data.groupby("Station").first().reset_index()
             
-            fig_indo_map = px.scatter_mapbox(
+            fig_indo_map = px.scatter_map(
                 station_map,
                 lat="Latitude",
                 lon="Longitude",
@@ -216,7 +248,7 @@ with tab_indo:
                 color_discrete_map={"Safe": "#10B981", "Caution": "#F59E0B"},
                 zoom=4,
                 center={"lat": 20.5937, "lon": 78.9629},
-                mapbox_style="carto-positron",
+                map_style="carto-positron",
                 title=f"Indian River Gauge Stations ({len(station_map)} nodes)"
             )
             fig_indo_map.update_layout(height=420, margin=dict(l=0, r=0, t=35, b=0))
@@ -246,7 +278,7 @@ with tab_indo:
             surge_above_danger = sim_peak_lvl - d_lvl
             ratio_to_danger = sim_peak_lvl / max(0.1, d_lvl)
             
-            if indo_clf and indo_reg:
+            if indo_clf is not None and indo_reg is not None:
                 indo_input = pd.DataFrame([{
                     "Peak Flood Level (m)": sim_peak_lvl,
                     "Warning Level": w_lvl,
@@ -356,7 +388,7 @@ with tab_sim:
         
     st.divider()
     
-    if classifier and regressor:
+    if classifier is not None and regressor is not None:
         # Construct feature vector
         sample_dict = {
             "elevation_m": [elevation],
@@ -475,7 +507,7 @@ with tab_map:
         color_map = {0: "#10B981", 1: "#F59E0B", 2: "#F97316", 3: "#EF4444"}
         latest_stations["Risk Label"] = latest_stations["flood_risk_level"].map(RISK_LABELS)
         
-        map_fig = px.scatter_mapbox(
+        map_fig = px.scatter_map(
             latest_stations,
             lat="station_latitude",
             lon="station_longitude",
@@ -499,7 +531,7 @@ with tab_map:
             },
             zoom=10,
             center={"lat": 18.5089, "lon": 73.8567},
-            mapbox_style="carto-positron",
+            map_style="carto-positron",
             title="River Catchment Sensor Nodes (Dot Size = Water Gauge Height)"
         )
         map_fig.update_layout(height=480, margin=dict(l=0, r=0, t=35, b=0))

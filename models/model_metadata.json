@@ -1,0 +1,90 @@
+{
+  "features": [
+    "elevation_m",
+    "rainfall_24h_mm",
+    "rainfall_72h_mm",
+    "soil_moisture_pct",
+    "river_discharge_m3s",
+    "current_water_level_m",
+    "reservoir_capacity_pct",
+    "topographic_wetness_index",
+    "drainage_efficiency_score",
+    "urbanization_ratio",
+    "runoff_risk_ratio",
+    "capacity_stress",
+    "hazard_flow_index"
+  ],
+  "risk_labels": {
+    "0": "Safe (Normal)",
+    "1": "Advisory (Watch)",
+    "2": "Warning (High Risk)",
+    "3": "Emergency (Severe Flood)"
+  },
+  "classifier": {
+    "model_type": "RandomForestClassifier",
+    "accuracy": 0.8917,
+    "f1_weighted": 0.8911,
+    "confusion_matrix": [
+      [
+        282,
+        24,
+        0,
+        0
+      ],
+      [
+        30,
+        147,
+        1,
+        0
+      ],
+      [
+        0,
+        5,
+        24,
+        3
+      ],
+      [
+        0,
+        0,
+        2,
+        82
+      ]
+    ],
+    "feature_importances": {
+      "elevation_m": 0.0136,
+      "rainfall_24h_mm": 0.1273,
+      "rainfall_72h_mm": 0.1566,
+      "soil_moisture_pct": 0.0285,
+      "river_discharge_m3s": 0.0731,
+      "current_water_level_m": 0.2691,
+      "reservoir_capacity_pct": 0.0372,
+      "topographic_wetness_index": 0.0149,
+      "drainage_efficiency_score": 0.024,
+      "urbanization_ratio": 0.0132,
+      "runoff_risk_ratio": 0.1067,
+      "capacity_stress": 0.0216,
+      "hazard_flow_index": 0.1142
+    }
+  },
+  "regressor": {
+    "model_type": "GradientBoostingRegressor",
+    "r2_score": 0.9902,
+    "mae": 0.3018,
+    "rmse": 0.5008,
+    "feature_importances": {
+      "elevation_m": 0.0,
+      "rainfall_24h_mm": 0.0801,
+      "rainfall_72h_mm": 0.3458,
+      "soil_moisture_pct": 0.0001,
+      "river_discharge_m3s": 0.0043,
+      "current_water_level_m": 0.5313,
+      "reservoir_capacity_pct": 0.0023,
+      "topographic_wetness_index": 0.0002,
+      "drainage_efficiency_score": 0.0007,
+      "urbanization_ratio": 0.0001,
+      "runoff_risk_ratio": 0.0129,
+      "capacity_stress": 0.0004,
+      "hazard_flow_index": 0.0217
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "features": [
+    "Peak Flood Level (m)",
+    "Warning Level",
+    "Danger Level",
+    "Gauge_Danger_Surge_m",
+    "Water_to_Danger_Ratio",
+    "Event Duration (days)",
+    "Time to Peak (days)",
+    "Recession Time (day)",
+    "Num Peak FL",
+    "Catchment Area"
+  ],
+  "reg_features": [
+    "Peak Flood Level (m)",
+    "Warning Level",
+    "Danger Level",
+    "Gauge_Danger_Surge_m",
+    "Event Duration (days)",
+    "Catchment Area"
+  ],
+  "metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "confusion_matrix": [
+      [
+        117,
+        0
+      ],
+      [
+        0,
+        60
+      ]
+    ],
+    "discharge_log_r2": 0.897
+  },
+  "feature_importances": {
+    "Peak Flood Level (m)": 0.0489,
+    "Warning Level": 0.0095,
+    "Danger Level": 0.0127,
+    "Gauge_Danger_Surge_m": 0.4936,
+    "Water_to_Danger_Ratio": 0.3994,
+    "Event Duration (days)": 0.0063,
+    "Time to Peak (days)": 0.0055,
+    "Recession Time (day)": 0.0054,
+    "Num Peak FL": 0.0002,
+    "Catchment Area": 0.0186
+  }
+}
